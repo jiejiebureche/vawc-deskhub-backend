@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     barangayComplainant: { type: String, required: true },
     contact_num: { type: String, required: true },
     password: { type: String, required: true, minlength: 8 },
-    role: {type:String, required: true, default: "user"},
+    role: {type:String, required: true, enum: ["user", "agent"], default: "user"},
     valid_id: {
       type: [
         {
