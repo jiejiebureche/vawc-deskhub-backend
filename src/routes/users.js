@@ -30,39 +30,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-//create a user
-router.post("/", async (req, res) => {
-  try {
-    const {
-      name,
-      dob,
-      city,
-      barangayComplainant,
-      contact_num,
-      role,
-      password,
-      valid_id,
-    } = req.body;
-    const newUser = new User({
-      name,
-      dob,
-      city,
-      barangayComplainant,
-      contact_num,
-      role,
-      password,
-      valid_id,
-    });
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
-  } catch (error) {
-    console.error("Error in posting new user", error);
-    res.status(500).json({
-      message: "Internal server error",
-    });
-  }
-});
-
 //update user info by id
 router.put("/:id", async (req, res) => {
   try {
