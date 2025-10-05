@@ -2,6 +2,7 @@ import express from "express";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import multer from "multer";
+import fs from "fs"
 
 const router = express.Router();
 
@@ -20,7 +21,23 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// create a user or sign up
+//login endpoint
+router.post("/login", async (req, res) => {
+  try {
+    const { contact_num, password } = req.body;
+    const user = await User.login(contact_num, password);
+
+    const token = createToken(user._id);
+
+    res.status(201).json({ contact_num, token });
+  } catch (error) {
+    console.error("Error in logging user in:", error);
+    res.status(500).json({
+      message: error.message || "Internal server error",
+    });
+  }
+});
+
 router.post("/signup", upload.single("valid_id"), async (req, res) => {
   try {
     const {
@@ -33,14 +50,27 @@ router.post("/signup", upload.single("valid_id"), async (req, res) => {
       password,
     } = req.body;
 
+    //validation if fields are empty
+    if (!name || !dob || !city || !barangayComplainant || !contact_num || !role || !password) {
+      // delete uploaded file if it exists
+      if (req.file) fs.unlinkSync(req.file.path);
+      return res.status(400).json({ message: "All fields must be filled!" });
+    }
+
+    //check if contact_num exists
+    const existingUser = await User.findOne({ contact_num });
+    if (existingUser) {
+      if (req.file) fs.unlinkSync(req.file.path);
+      return res.status(400).json({ message: "Contact number already taken!" });
+    }
+
     const valid_id = [
       {
-        fileType: req.file.mimetype,
-        url: req.file.path,
+        fileType: req.file.mimetype, // "image/jpeg", etc.
+        url: req.file.path,           // e.g. "src/uploads/id.jpg"
       },
     ];
 
-    // call the static signup method directly (no "new")
     const user = await User.signup(
       name,
       dob,
@@ -57,10 +87,21 @@ router.post("/signup", upload.single("valid_id"), async (req, res) => {
     res.status(201).json({ contact_num, token });
   } catch (error) {
     console.error("Error in posting new user:", error);
+
+    // delete uploaded file if error happens
+    if (req.file) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (unlinkError) {
+        console.error("Error deleting uploaded file:", unlinkError);
+      }
+    }
+
     res.status(500).json({
       message: error.message || "Internal server error",
     });
   }
 });
+
 
 export default router;

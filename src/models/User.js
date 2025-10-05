@@ -35,6 +35,24 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+userSchema.statics.login = async function (contact_num, password) {
+  if (!contact_num || !password) {
+    throw new Error("All fields must be filled!");
+  }
+
+  const user = await this.findOne({ contact_num });
+  if (!user) {
+    throw new Error("Incorrect contact number");
+  }
+
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) {
+    throw new Error("Incorrect password");
+  }
+
+  return user;
+};
+
 userSchema.statics.signup = async function (
   name,
   dob,

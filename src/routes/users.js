@@ -40,6 +40,7 @@ router.put("/:id", async (req, res) => {
       barangayComplainant,
       contact_num,
       password,
+      role,
       valid_id,
     } = req.body;
     const updatedUser = await User.findByIdAndUpdate(
@@ -51,6 +52,7 @@ router.put("/:id", async (req, res) => {
         barangayComplainant,
         contact_num,
         password,
+        role,
         valid_id,
       },
       {
