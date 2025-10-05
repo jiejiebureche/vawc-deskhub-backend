@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
     valid_id: {
       type: [
         {
-          fileType: { type: String, enum: ["image"], default: "image" },
+          fileType: { type: String, default: "image" },
           url: { type: String, required: true },
         },
       ],

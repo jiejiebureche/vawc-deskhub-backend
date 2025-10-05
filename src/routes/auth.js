@@ -1,15 +1,27 @@
 import express from "express";
 import User from "../models/User.js";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
+import multer from "multer";
 
 const router = express.Router();
 
 const createToken = (_id) => {
-  return jwt.sign({_id}, process.env.SECRET, { expiresIn: '3d' })
-}
+  return jwt.sign({ _id }, process.env.SECRET, { expiresIn: "3d" });
+};
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "src/uploads"); // relative to project root
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage });
 
 // create a user or sign up
-router.post("/signup", async (req, res) => {
+router.post("/signup", upload.single("valid_id"), async (req, res) => {
   try {
     const {
       name,
@@ -19,8 +31,14 @@ router.post("/signup", async (req, res) => {
       contact_num,
       role,
       password,
-      valid_id,
     } = req.body;
+
+    const valid_id = [
+      {
+        fileType: req.file.mimetype,
+        url: req.file.path,
+      },
+    ];
 
     // call the static signup method directly (no "new")
     const user = await User.signup(
@@ -34,9 +52,9 @@ router.post("/signup", async (req, res) => {
       password
     );
 
-    const token = createToken(user._id)
+    const token = createToken(user._id);
 
-    res.status(201).json({contact_num, token});
+    res.status(201).json({ contact_num, token });
   } catch (error) {
     console.error("Error in posting new user:", error);
     res.status(500).json({
