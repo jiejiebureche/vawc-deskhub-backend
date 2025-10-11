@@ -5,6 +5,7 @@ const reportSchema = new mongoose.Schema(
     name: { type: String, required: true },
     reporterId: { type: String, required: true },
     city: { type: String, required: true },
+    description: { type: String, required: true },
     barangayComplainant: { type: String, required: true },
     barangayIncident: { type: String, required: true },
     reporterType: {

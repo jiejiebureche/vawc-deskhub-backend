@@ -82,6 +82,7 @@ router.post("/", async (req, res) => {
       name,
       reporterId,
       city,
+      description,
       barangayComplainant,
       barangayIncident,
       location,
@@ -93,6 +94,7 @@ router.post("/", async (req, res) => {
       name,
       reporterId,
       city,
+      description,
       barangayComplainant,
       barangayIncident,
       location,
@@ -117,6 +119,8 @@ router.put("/:id", async (req, res) => {
       name,
       reporterId,
       city,
+      description,
+      status,
       barangayComplainant,
       barangayIncident,
       location,
@@ -130,6 +134,8 @@ router.put("/:id", async (req, res) => {
         name,
         reporterId,
         city,
+        description,
+        status,
         barangayComplainant,
         barangayIncident,
         location,
@@ -139,7 +145,8 @@ router.put("/:id", async (req, res) => {
       },
       {
         new: true,
-      }
+      },
+      { runValidators: true }
     );
     if (!updatedReport)
       return res
