@@ -1,8 +1,12 @@
 import express from "express";
 import Report from "../models/Report.js";
 import User from "../models/User.js";
+import requireAuth from "../middleware/requireAuth.js"
 
 const router = express.Router();
+
+//users need to be logged in in order to make requests
+router.use(requireAuth)
 
 //get report based on agent barangay
 router.get("/agent/:agentId", async (req, res) => {

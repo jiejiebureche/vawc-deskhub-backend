@@ -1,7 +1,11 @@
 import express from "express";
 import User from "../models/User.js";
+import requireAuth from "../middleware/requireAuth.js"
 
 const router = express.Router();
+
+//users need to be logged in in order to make requests
+router.use(requireAuth)
 
 //get all user
 router.get("/", async (req, res) => {
