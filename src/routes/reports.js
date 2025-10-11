@@ -1,12 +1,30 @@
 import express from "express";
 import Report from "../models/Report.js";
 import User from "../models/User.js";
-import requireAuth from "../middleware/requireAuth.js"
+import requireAuth from "../middleware/requireAuth.js";
 
 const router = express.Router();
 
 //users need to be logged in in order to make requests
-router.use(requireAuth)
+router.use(requireAuth);
+
+//get report based on reporterId
+router.get("/reporterId/:reporterId", async (req, res) => {
+  try {
+    const reportByReporter = await Report.find({ reporterId: req.params.reporterId });
+
+    if (!reportByReporter || reportByReporter.length === 0) {
+      return res.status(404).json({ message: "No reports found for this reporter." });
+    }
+
+    res.status(200).json(reportByReporter);
+  } catch (error) {
+    console.error("Error in getting report by reporter:", error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+});
 
 //get report based on agent barangay
 router.get("/agent/:agentId", async (req, res) => {
@@ -62,6 +80,7 @@ router.post("/", async (req, res) => {
   try {
     const {
       name,
+      reporterId,
       city,
       barangayComplainant,
       barangayIncident,
@@ -72,6 +91,7 @@ router.post("/", async (req, res) => {
     } = req.body;
     const newReport = new Report({
       name,
+      reporterId,
       city,
       barangayComplainant,
       barangayIncident,
@@ -95,6 +115,7 @@ router.put("/:id", async (req, res) => {
   try {
     const {
       name,
+      reporterId,
       city,
       barangayComplainant,
       barangayIncident,
@@ -107,6 +128,7 @@ router.put("/:id", async (req, res) => {
       req.params.id,
       {
         name,
+        reporterId,
         city,
         barangayComplainant,
         barangayIncident,
