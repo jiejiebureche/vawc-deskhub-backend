@@ -34,6 +34,7 @@ router.post("/login", async (req, res) => {
       dob: user.dob,
       barangayComplainant: user.barangayComplainant,
       city: user.city,
+      role: user.role,
       contact_num: user.contact_num,
     };
 

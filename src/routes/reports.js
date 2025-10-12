@@ -36,7 +36,7 @@ router.get("/agent/:agentId", async (req, res) => {
         .json({ message: "You're not authorized to access this" });
     }
     const report = await Report.find({
-      barangayComplainant: agent.barangayComplainant,
+      barangayIncident: agent.barangayComplainant,
     });
     res.status(200).json(report);
   } catch (error) {
