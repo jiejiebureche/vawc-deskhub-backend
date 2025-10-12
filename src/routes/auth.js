@@ -2,7 +2,7 @@ import express from "express";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import multer from "multer";
-import fs from "fs"
+import fs from "fs";
 
 const router = express.Router();
 
@@ -26,10 +26,20 @@ router.post("/login", async (req, res) => {
   try {
     const { contact_num, password } = req.body;
     const user = await User.login(contact_num, password);
-
     const token = createToken(user._id);
 
-    res.status(201).json({ contact_num, token });
+    const safeUser = {
+      id: user._id,
+      name: user.name,
+      dob: user.dob,
+      barangayComplainant: user.barangayComplainant,
+      city: user.city,
+      contact_num: user.contact_num,
+    };
+
+    res
+      .status(201)
+      .json({ safeUser, token });
   } catch (error) {
     console.error("Error in logging user in:", error);
     res.status(500).json({
@@ -51,7 +61,15 @@ router.post("/signup", upload.single("valid_id"), async (req, res) => {
     } = req.body;
 
     //validation if fields are empty
-    if (!name || !dob || !city || !barangayComplainant || !contact_num || !role || !password) {
+    if (
+      !name ||
+      !dob ||
+      !city ||
+      !barangayComplainant ||
+      !contact_num ||
+      !role ||
+      !password
+    ) {
       // delete uploaded file if it exists
       if (req.file) fs.unlinkSync(req.file.path);
       return res.status(400).json({ message: "All fields must be filled!" });
@@ -67,7 +85,7 @@ router.post("/signup", upload.single("valid_id"), async (req, res) => {
     const valid_id = [
       {
         fileType: req.file.mimetype, // "image/jpeg", etc.
-        url: req.file.path,           // e.g. "src/uploads/id.jpg"
+        url: req.file.path, // e.g. "src/uploads/id.jpg"
       },
     ];
 
@@ -102,6 +120,5 @@ router.post("/signup", upload.single("valid_id"), async (req, res) => {
     });
   }
 });
-
 
 export default router;
