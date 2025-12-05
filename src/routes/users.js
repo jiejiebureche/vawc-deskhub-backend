@@ -1,11 +1,13 @@
 import express from "express";
 import User from "../models/User.js";
-import requireAuth from "../middleware/requireAuth.js"
+import requireAuth from "../middleware/requireAuth.js";
+import bcrypt from "bcrypt";
+import validator from "validator";
 
 const router = express.Router();
 
 //users need to be logged in in order to make requests
-router.use(requireAuth)
+router.use(requireAuth);
 
 //get all user
 router.get("/", async (req, res) => {
@@ -31,6 +33,52 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({
       message: "Internal server error",
     });
+  }
+});
+
+router.patch("/:id", async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: "Password is required" });
+    }
+
+    if (!validator.isStrongPassword(password)) {
+      return res.status(400).json({ message: "Password is not strong enough" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        password: hash,
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const token = user.token;
+    const safeUser = {
+      id: user._id,
+      name: user.name,
+      dob: user.dob,
+      barangayComplainant: user.barangayComplainant,
+      city: user.city,
+      role: user.role,
+      contact_num: user.contact_num,
+    };
+
+    res.status(201).json({ safeUser, token });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

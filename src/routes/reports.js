@@ -11,10 +11,14 @@ router.use(requireAuth);
 //get report based on reporterId
 router.get("/reporterId/:reporterId", async (req, res) => {
   try {
-    const reportByReporter = await Report.find({ reporterId: req.params.reporterId });
+    const reportByReporter = await Report.find({
+      reporterId: req.params.reporterId,
+    });
 
     if (!reportByReporter || reportByReporter.length === 0) {
-      return res.status(404).json({ message: "No reports found for this reporter." });
+      return res
+        .status(404)
+        .json({ message: "No reports found for this reporter." });
     }
 
     res.status(200).json(reportByReporter);
@@ -106,6 +110,32 @@ router.post("/", async (req, res) => {
     res.status(201).json(savedReport);
   } catch (error) {
     console.error("Error in posting new report", error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+});
+
+//update status of report
+router.patch("/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
+    const updateStatus = await Report.findByIdAndUpdate(
+      req.params.id,
+      {
+        status,
+      },
+      {
+        new: true,
+      }
+    );
+    if (!updateStatus)
+      return res
+        .status(404)
+        .json({ message: "Report not found, updating status failed" });
+    res.status(201).json(updateStatus);
+  } catch (error) {
+    console.error("Error in updating a report's status", error);
     res.status(500).json({
       message: "Internal server error",
     });

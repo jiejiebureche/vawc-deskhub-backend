@@ -16,7 +16,7 @@ connectDB();
 app.use(
   cors({
     origin: "http://localhost:5173", // your React app
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
 );
