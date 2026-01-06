@@ -9,13 +9,15 @@ import cors from "cors";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
-//nodemon for realtime updates in api
+const PORT = process.env.PORT || 10000;
+
+
 
 connectDB();
 app.use(
   cors({
-    origin: "http://localhost:5173", // your React app
+    origin: "https://vawcdeskhub.netlify.app", // your React app
+    // origin: "https://vawc-deskhub.vercel.app",// your React app
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
@@ -26,6 +28,6 @@ app.use("/auth", auth);
 app.use("/users", users);
 app.use("/reports", reports);
 
-app.listen(3000, () => {
-  console.log("Server started on port:", PORT);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on port ${PORT}`);
 });
